@@ -6,8 +6,8 @@ import { useNavigate } from 'react-router-dom'
 
 const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false)
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState('admin@example.com')
+  const [password, setPassword] = useState('password')
   const navigate = useNavigate()
 
   const togglePasswordVisibility = () => {

@@ -1,9 +1,8 @@
 import React from 'react'
-import AdminLayout from '../../components/admin/AdminLayout'
 
 const DashboardPage: React.FC = () => {
   return (
-    <AdminLayout>
+    <>
       <h2 className="text-3xl font-semibold text-gray-800">Dashboard</h2>
       <div className="mt-4">
         <div className="flex flex-wrap -mx-6">
@@ -83,7 +82,7 @@ const DashboardPage: React.FC = () => {
           </div>
         </div>
       </div>
-    </AdminLayout>
+    </>
   )
 }
 
