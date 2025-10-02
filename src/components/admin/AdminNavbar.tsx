@@ -1,6 +1,21 @@
-import React from 'react'
+import React, { useState } from 'react'
+import useAuthStore from '../../store/useAuthStore'
+import { useNavigate } from 'react-router-dom'
 
 const AdminNavbar: React.FC = () => {
+  const { user, logout } = useAuthStore()
+  const navigate = useNavigate()
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+
+  const handleLogout = () => {
+    logout()
+    navigate('/login')
+  }
+
+  const toggleDropdown = () => {
+    setDropdownOpen(!dropdownOpen)
+  }
+
   return (
     <header className="flex items-center justify-between px-6 py-4 bg-white border-b-4 border-indigo-600">
       <div className="flex items-center">
@@ -79,120 +94,47 @@ const AdminNavbar: React.FC = () => {
               />
             </svg>
           </button>
-
-          {/* <div
-            x-show="dropdownOpen"
-            onClick="dropdownOpen = false"
-            className="fixed inset-0 z-10 w-full h-full"
-          ></div> */}
-
-          {/* <div
-            x-show="dropdownOpen"
-            className="absolute right-0 z-10 mt-2 overflow-hidden bg-white rounded-md shadow-xl w-80"
-            style="width:20rem;"
-          >
-            <a
-              href="#"
-              className="flex items-center px-4 py-3 -mx-2 text-gray-600 hover:text-white hover:bg-indigo-600"
-            >
-              <img
-                className="object-cover w-8 h-8 mx-1 rounded-full"
-                src="https://images.unsplash.com/photo-1494790108377-be9c29b29329?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=334&q=80"
-                alt="avatar"
-              />
-              <p className="mx-2 text-sm">
-                <span className="font-bold">Sara Salah</span> replied on the
-                <span className="font-bold text-indigo-400">Upload Image</span>
-                article . 2m
-              </p>
-            </a>
-            <a
-              href="#"
-              className="flex items-center px-4 py-3 -mx-2 text-gray-600 hover:text-white hover:bg-indigo-600"
-            >
-              <img
-                className="object-cover w-8 h-8 mx-1 rounded-full"
-                src="https://images.unsplash.com/photo-1531427186611-ecfd6d951979?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80"
-                alt="avatar"
-              />
-              <p className="mx-2 text-sm">
-                <span className="font-bold">James Carter</span> was assigned to the
-                <span className="font-bold text-indigo-400">Fix an Issue</span>
-                task . 1m
-              </p>
-            </a>
-            <a
-              href="#"
-              className="flex items-center px-4 py-3 -mx-2 text-gray-600 hover:text-white hover:bg-indigo-600"
-            >
-              <img
-                className="object-cover w-8 h-8 mx-1 rounded-full"
-                src="https://images.unsplash.com/photo-1450297350677-623de575f31c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=334&q=80"
-                alt="avatar"
-              />
-              <p className="mx-2 text-sm">
-                <span className="font-bold">Alexandra Smith</span> reviewed <span
-                  className="font-bold text-indigo-400"
-                  >27 new orders</span
-                >
-                . 3m
-              </p>
-            </a>
-            <a
-              href="#"
-              className="flex items-center px-4 py-3 -mx-2 text-gray-600 hover:text-white hover:bg-indigo-600"
-            >
-              <img
-                className="object-cover w-8 h-8 mx-1 rounded-full"
-                src="https://images.unsplash.com/photo-1450297350677-623de575f31c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=334&q=80"
-                alt="avatar"
-              />
-              <p className="mx-2 text-sm">
-                <span className="font-bold">Alexandra Smith</span> reviewed <span
-                  className="font-bold text-indigo-400"
-                  >27 new orders</span
-                >
-                . 3m
-              </p>
-            </a>
-          </div> */}
         </div>
 
         <div className="relative">
-          <button className="relative block w-10 h-10 overflow-hidden rounded-full shadow focus:outline-none">
+          <button
+            onClick={toggleDropdown}
+            className="relative block w-10 h-10 overflow-hidden rounded-full shadow focus:outline-none"
+          >
             <img
               className="object-cover w-full h-full"
               src="https://img.icons8.com/?size=100&id=23242&format=png&color=000000"
               alt="Your avatar"
             />
           </button>
-
-          {/* <div
-            x-show="dropdownOpen"
-            onClick="dropdownOpen = false"
-            className="fixed inset-0 z-10 w-full h-full"
-          ></div> */}
-
-          {/* <div
-            x-show="dropdownOpen"
-            className="absolute right-0 z-10 w-48 mt-2 overflow-hidden bg-white rounded-md shadow-xl"
-          >
-            <a
-              href="#"
-              className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-600 hover:text-white"
-              >Profile</a
-            >
-            <a
-              href="#"
-              className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-600 hover:text-white"
-              >Products</a
-            >
-            <a
-              href="/login"
-              className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-600 hover:text-white"
-              >Logout</a
-            >
-          </div> */}
+          {dropdownOpen && (
+            <div className="absolute right-0 z-10 w-48 mt-2 overflow-hidden bg-white rounded-md shadow-xl">
+              <a
+                href="#"
+                className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-600 hover:text-white"
+              >
+                {user?.name || 'Guest'}
+              </a>
+              <a
+                href="#"
+                className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-600 hover:text-white"
+              >
+                Profile
+              </a>
+              <a
+                href="#"
+                className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-600 hover:text-white"
+              >
+                Products
+              </a>
+              <button
+                onClick={handleLogout}
+                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-indigo-600 hover:text-white"
+              >
+                Logout
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </header>

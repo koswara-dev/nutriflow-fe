@@ -3,7 +3,12 @@ import { useProdukStore, Produk } from '../../store/useProdukStore'
 import { usePemasokStore, Pemasok } from '../../store/usePemasokStore'
 import ConfirmModal from '../../components/common/ConfirmModal'
 import ProdukForm from '../../components/forms/ProdukForm'
-import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline'
+import {
+  PlusIcon,
+  PencilIcon,
+  TrashIcon,
+  FunnelIcon
+} from '@heroicons/react/24/outline'
 import { toast } from 'react-toastify'
 
 const ProdukPage: React.FC = () => {
@@ -15,15 +20,29 @@ const ProdukPage: React.FC = () => {
   const [selectedProduk, setSelectedProduk] = useState<Produk | null>(null)
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
   const [produkToDelete, setProdukToDelete] = useState<number | null>(null)
-
-  // This console.log is added to ensure 'isModalOpen' is considered 'read' by the linter.
-  // It does not affect the component's functionality.
-  console.log('isModalOpen status:', isModalOpen)
+  const [filterJenisProduk, setFilterJenisProduk] = useState<
+    Produk['jenisProduk'] | ''
+  >('')
+  const [filterPemasokId, setFilterPemasokId] = useState<number | ''>('')
+  const [searchNamaProduk, setSearchNamaProduk] = useState<string>('') // Temporary state for search input
+  const [filterNamaProduk, setFilterNamaProduk] = useState<string>('') // State that triggers fetch
 
   useEffect(() => {
-    fetchProduk()
+    fetchProduk(filterJenisProduk, filterPemasokId, filterNamaProduk)
     fetchPemasok()
-  }, [fetchProduk, fetchPemasok])
+  }, [
+    fetchProduk,
+    fetchPemasok,
+    filterJenisProduk,
+    filterPemasokId,
+    filterNamaProduk
+  ])
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      setFilterNamaProduk(searchNamaProduk)
+    }
+  }
 
   const openModal = (produk?: Produk) => {
     setSelectedProduk(produk || null)
@@ -81,15 +100,68 @@ const ProdukPage: React.FC = () => {
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="max-w-7xl mx-auto bg-white shadow-lg rounded-lg p-6">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-6 space-y-4 md:space-y-0 md:space-x-4">
           <h1 className="text-2xl font-bold text-gray-800">Daftar Produk</h1>
-          <button
-            onClick={() => openModal()}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out flex items-center"
-          >
-            <PlusIcon className="h-5 w-5 mr-2" />
-            Tambah Produk
-          </button>
+          <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 w-full md:w-auto">
+            <FunnelIcon className="h-5 w-5 text-gray-500 md:self-center" />
+            <div className="w-full md:w-auto">
+              <select
+                id="filterJenisProduk"
+                value={filterJenisProduk}
+                onChange={(e) =>
+                  setFilterJenisProduk(
+                    e.target.value as Produk['jenisProduk'] | ''
+                  )
+                }
+                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              >
+                <option value="">All Jenis Produk</option>
+                <option value="BahanPokok">Bahan Pokok</option>
+                <option value="Makanan">Makanan</option>
+                <option value="Minuman">Minuman</option>
+              </select>
+            </div>
+
+            <div className="w-full md:w-auto">
+              <select
+                id="filterPemasok"
+                value={filterPemasokId}
+                onChange={(e) =>
+                  setFilterPemasokId(
+                    e.target.value ? Number(e.target.value) : ''
+                  )
+                }
+                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              >
+                <option value="">All Pemasok</option>
+                {pemasokList.map((pemasok) => (
+                  <option key={pemasok.id} value={pemasok.id}>
+                    {pemasok.namaPemasok}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="w-full md:w-auto">
+              <input
+                type="text"
+                id="filterNamaProduk"
+                placeholder="Search by Nama Produk"
+                value={searchNamaProduk}
+                onChange={(e) => setSearchNamaProduk(e.target.value)}
+                onKeyDown={handleSearchKeyDown}
+                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              />
+            </div>
+
+            <button
+              onClick={() => openModal()}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out flex items-center w-full md:w-auto justify-center"
+            >
+              <PlusIcon className="h-5 w-5 mr-2" />
+              Tambah Produk
+            </button>
+          </div>
         </div>
 
         {produkList.length === 0 ? (
@@ -119,6 +191,9 @@ const ProdukPage: React.FC = () => {
                     Stok
                   </th>
                   <th className="py-3 px-6 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                    Jenis Produk
+                  </th>
+                  <th className="py-3 px-6 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                     Pemasok
                   </th>
                   <th className="py-3 px-6 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
@@ -143,6 +218,9 @@ const ProdukPage: React.FC = () => {
                     </td>
                     <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-700">
                       {produk.stok}
+                    </td>
+                    <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-700">
+                      {produk.jenisProduk}
                     </td>
                     <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-700">
                       {produk.namaPemasok}

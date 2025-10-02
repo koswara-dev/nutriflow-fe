@@ -10,6 +10,9 @@ const produkSchema = z.object({
   namaProduk: z.string().min(1, 'Nama Produk is required'),
   harga: z.coerce.number().min(0, 'Harga must be a positive number'),
   stok: z.coerce.number().int().min(0, 'Stok must be a non-negative integer'),
+  jenisProduk: z.enum(['BahanPokok', 'Makanan', 'Minuman'], {
+    message: 'Jenis Produk is required'
+  }),
   pemasokId: z.coerce.number().int().min(1, 'Pemasok is required')
 })
 
@@ -44,6 +47,7 @@ const ProdukForm: React.FC<ProdukFormProps> = ({
         namaProduk: produk.namaProduk,
         harga: produk.harga,
         stok: produk.stok,
+        jenisProduk: produk.jenisProduk,
         pemasokId: produk.pemasokId
       })
     } else {
@@ -51,6 +55,7 @@ const ProdukForm: React.FC<ProdukFormProps> = ({
         namaProduk: '',
         harga: 0,
         stok: 0,
+        jenisProduk: 'BahanPokok', // Default value
         pemasokId: 0
       })
     }
@@ -157,6 +162,28 @@ const ProdukForm: React.FC<ProdukFormProps> = ({
             {errors.pemasokId && (
               <p className="mt-1 text-sm text-red-600">
                 {errors.pemasokId.message}
+              </p>
+            )}
+          </div>
+          <div>
+            <label
+              htmlFor="jenisProduk"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Jenis Produk
+            </label>
+            <select
+              id="jenisProduk"
+              {...register('jenisProduk')}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            >
+              <option value="BahanPokok">Bahan Pokok</option>
+              <option value="Makanan">Makanan</option>
+              <option value="Minuman">Minuman</option>
+            </select>
+            {errors.jenisProduk && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.jenisProduk.message}
               </p>
             )}
           </div>

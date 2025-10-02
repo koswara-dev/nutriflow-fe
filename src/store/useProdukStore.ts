@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import axios from 'axios'
+import axios from '../utils/axios'
 import { toast } from 'react-toastify'
 
 export interface Produk {
@@ -7,6 +7,7 @@ export interface Produk {
   namaProduk: string
   harga: number
   stok: number
+  jenisProduk: 'BahanPokok' | 'Makanan' | 'Minuman'
   pemasokId: number
   namaPemasok: string
   createdAt: string
@@ -17,7 +18,11 @@ interface ProdukState {
   produkList: Produk[]
   loading: boolean
   error: string | null
-  fetchProduk: () => Promise<void>
+  fetchProduk: (
+    jenisProduk?: Produk['jenisProduk'] | '',
+    pemasokId?: number | '',
+    namaProduk?: string
+  ) => Promise<void>
   addProduk: (
     produk: Omit<Produk, 'id' | 'namaPemasok' | 'createdAt' | 'updatedAt'>
   ) => Promise<void>
@@ -32,10 +37,21 @@ export const useProdukStore = create<ProdukState>((set, get) => ({
   produkList: [],
   loading: false,
   error: null,
-  fetchProduk: async () => {
+  fetchProduk: async (jenisProduk = '', pemasokId = '', namaProduk = '') => {
     set({ loading: true, error: null })
     try {
-      const response = await axios.get('http://localhost:8080/api/produk')
+      const params = new URLSearchParams()
+      if (jenisProduk) {
+        params.append('jenisProduk', jenisProduk)
+      }
+      if (pemasokId) {
+        params.append('pemasokId', pemasokId.toString())
+      }
+      if (namaProduk) {
+        params.append('namaProduk', namaProduk)
+      }
+
+      const response = await axios.get('/produk', { params })
       if (response.data.success) {
         set({ produkList: response.data.data, loading: false })
       } else {
@@ -53,10 +69,7 @@ export const useProdukStore = create<ProdukState>((set, get) => ({
   addProduk: async (produk) => {
     set({ loading: true, error: null })
     try {
-      const response = await axios.post(
-        'http://localhost:8080/api/produk',
-        produk
-      )
+      const response = await axios.post('/produk', produk)
       if (response.data.success) {
         get().fetchProduk() // Refresh the list
         toast.success('Produk added successfully!')
@@ -75,10 +88,7 @@ export const useProdukStore = create<ProdukState>((set, get) => ({
   updateProduk: async (id, produk) => {
     set({ loading: true, error: null })
     try {
-      const response = await axios.put(
-        `http://localhost:8080/api/produk/${id}`,
-        produk
-      )
+      const response = await axios.put(`/produk/${id}`, produk)
       if (response.data.success) {
         get().fetchProduk() // Refresh the list
         toast.success('Produk updated successfully!')
@@ -97,9 +107,7 @@ export const useProdukStore = create<ProdukState>((set, get) => ({
   deleteProduk: async (id) => {
     set({ loading: true, error: null })
     try {
-      const response = await axios.delete(
-        `http://localhost:8080/api/produk/${id}`
-      )
+      const response = await axios.delete(`/produk/${id}`)
       if (response.data.success) {
         get().fetchProduk() // Refresh the list
         toast.success('Produk deleted successfully!')

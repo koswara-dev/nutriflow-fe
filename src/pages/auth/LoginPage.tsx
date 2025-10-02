@@ -3,27 +3,35 @@ import backgroundImage from '/assets/images/background.jpg'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
 import logo from '/assets/images/logo.png'
 import { useNavigate } from 'react-router-dom'
+import useAuthStore from '../../store/useAuthStore'
+import { toast } from 'react-toastify'
 
 const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false)
-  const [email, setEmail] = useState('admin@example.com')
-  const [password, setPassword] = useState('password')
+  const [email, setEmail] = useState('admin@nutriflow.id')
+  const [password, setPassword] = useState('p4ssw0rd')
   const navigate = useNavigate()
+  const login = useAuthStore((state) => state.login)
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword)
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Mock login logic
-    if (email === 'admin@example.com' && password === 'password') {
-      // Simulate successful login
-      console.log('Login successful, redirecting to dashboard...')
-      navigate('/admin')
-    } else {
-      // Simulate failed login
-      alert('Invalid credentials')
+    try {
+      const response = await login(email, password)
+      if (response.success) {
+        console.log('Login successful, redirecting to dashboard...')
+        toast.success('Login successful!')
+        navigate('/admin')
+      } else {
+        toast.error(response.message || 'Login failed')
+      }
+    } catch (error: any) {
+      toast.error(
+        error.response?.data?.message || 'Login failed. Please try again.'
+      )
     }
   }
 
